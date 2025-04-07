@@ -12,7 +12,7 @@ $ python fvi.py
 fvi text editor : untitled.txt
 -------------------------------------------------
 hello!
-you can start editing your text file.
+this is your text editing area.
 
 Arrows keys to navigate,
 Ctrl+C to exit
