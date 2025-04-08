@@ -1,4 +1,5 @@
-# fvi
+# f*ck vi
+Because I can write an entire text editor in lesser time than learning vi
 
 Simple python based text editor with no external modules dependencies.
 No install required, copy code and use.
