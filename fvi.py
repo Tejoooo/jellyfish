@@ -1,165 +1,106 @@
-# fvi converts file buffer into a 2D array of characters
-# runs operations on this 2D array to edit buffer
-# and finally save this buffer to a file.
+from looks import app, TOP_PAD, LFT_PAD
+import curses
 
-import sys
-import tty
-import termios
-import os
-import copy
-from string import printable
-
-def get_key():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
-    try:
-        tty.setraw(fd)
-        key = sys.stdin.read(1)
-        if key == '\x1b':
-            key += sys.stdin.read(2)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return key
-
-#       Up          Down        Right       Left
-dirs = ['\x1b[A',   '\x1b[B',   '\x1b[C',   '\x1b[D']
-
-banner = """
--------------------------------------------------
-fvi text editor : {}
--------------------------------------------------
-"""
-
-footer = """
--------------------------------------------------
-Ln {}, Col {}  
--------------------------------------------------
-"""
-
-if len(sys.argv) == 1:
-    filename = 'untitled.txt'
-    buffer = ' '
-else:
-    filename = sys.argv[-1]
-    if os.path.exists(filename):
-        if os.path.isfile(filename):
-            with open(filename, 'r') as f:
-                buffer = f.read()
-                f.close()
-    else:
-        buffer = ' '
-
-# cursor
-# map buffer into a graph area
-class graph:
-    def __init__(self, buffer):
-        self.data = [list(l) for l in buffer.splitlines()]
-        self.cursor_pos = 0, 0
-
-    def draw(self):
-        os.system('clear')
-        print(banner.strip().format(filename))
-        screen_data = self.insert_char('|')
-        for row in screen_data:
-            row_str = ''.join(row)
-            print(row_str)
-        print(footer.strip().format(*self.cursor_pos))
-
-    def navigate(self, key_stroke):
-        row_idx, col_idx = self.cursor_pos
-        max_row = len(self.data)-1
-        max_col = len(self.data[row_idx])
-        if key_stroke ==  '\x1b[C': # right
-            if col_idx == max_col:
-                if row_idx == max_row:
-                    pass 
-                else:
-                    # next line
-                    row_idx += 1
-                    col_idx = 0
-            else:
-                col_idx += 1
-        elif key_stroke == '\x1b[D': # left
-            if col_idx == 0:
-                if row_idx == 0:
-                    pass
-                else:
-                    row_idx -= 1
-                    col_idx = len(self.data[row_idx])
-            else:
-                col_idx -= 1
-        elif key_stroke == '\x1b[B': # down
-            if row_idx == max_row:
-                pass 
-            else:
-                row_idx += 1
-                col_idx = min(len(self.data[row_idx]), col_idx)
-        elif key_stroke == '\x1b[A': # up
-            if row_idx == 0:
-                pass
-            else:
-                row_idx -= 1
-                col_idx = min(len(self.data[row_idx]), col_idx)
-        self.cursor_pos = row_idx, col_idx
-
-    def insert_char(self, char):
-        screen_data = copy.deepcopy(self.data)
-        row_idx, col_idx = self.cursor_pos
-        screen_data[row_idx].insert(col_idx, char)
-        return screen_data
-
-    def insert(self, char):
-        row_idx, col_idx = self.cursor_pos
-        if key == '\x7f': # backspace
-            if col_idx == 0:
-                if row_idx == 0:
-                    pass
-                else:
-                    prev_row_len = len(self.data[row_idx-1])
-                    current_row = self.data[row_idx]
-                    self.data.pop(row_idx)
-                    self.data[row_idx-1] += current_row
-                    row_idx -= 1
-                    col_idx = prev_row_len
-            else:
-                self.data[row_idx].pop(col_idx-1)
-                col_idx -= 1
-        elif key == '\r': # enter
-            left = self.data[row_idx][:col_idx]
-            right = self.data[row_idx][col_idx:]
-            
-            self.data[row_idx] = left 
-            self.data.insert(row_idx+1, right)
-            row_idx = row_idx+1
-            col_idx = 0
+import sys 
+def getArgs():
+    arg_dict = {None:[]}
+    switch = None 
+    # scan args
+    for arg in sys.argv:
+        # you hit a switch
+        if arg[0] == '-':
+            switch = arg
+            if switch not in arg_dict:
+                arg_dict.update({switch: []})    
             pass
-        elif key in printable[:-4]:
-            self.data = self.insert_char(char)
-            col_idx += 1
-        self.cursor_pos = row_idx, col_idx
+        # if you hit an argument
+        else:
+            arg_dict[switch].append(arg)
+    return arg_dict
 
-    def get_buffer(self):
-        return '\n'.join([''.join(row) for row in self.data])
+arg_dict = getArgs()
 
-paper = graph(buffer)
+if arg_dict[None][1:]:
+    filepath = arg_dict[None][1]
+    with open(filepath, 'r') as f:
+        file_content = f.read().splitlines()
+else:
+    filepath = 'untitled.txt'
+    file_content = []
 
-paper.draw()
-while True:
-    key = get_key()
-    if key == '\x03':
-        break
-    if key in dirs:
-        paper.navigate(key)
-    else:
-        paper.insert(key)
-    paper.draw()
+from string import printable
+allowed_keys = [ord(c) for c in printable[:-4]]
 
-sys.stdout.write('Save file? (y/n): ')
-key = get_key()
-print(key)
-if key in ['Y', 'y']:
-    with open(filename, 'w') as f:
-        f.write(paper.get_buffer())
-        f.close()
-        print(filename + ' saved')
-    
+def appService(app_front):
+    # type: (app) -> None
+    app_front.stdscr.move(TOP_PAD, LFT_PAD+1)
+    while True:
+        if app_front.key_inputs:
+            key = app_front.key_inputs.pop(0)
+            if key == curses.KEY_CLOSE:
+                # ask to save
+                break
+
+            if True:
+                # ch = chr(key) if key < 256 else str(key)
+                if key == ord('\n'):
+                    app_front.content.append('')
+
+                elif key == curses.KEY_BACKSPACE:
+                    # if the content is empty, dont do shit
+                    if not len(app_front.content):
+                        continue
+                    # if there is a line but it has width
+                    if len(app_front.content[-1]):
+                        app_front.content[-1] = app_front.content[-1][:-1]
+                    # if there is a line but it has no width
+                    else:
+                        app_front.content.pop()
+                    # then 
+                    pass
+
+                # utf charset
+                elif key in allowed_keys:
+                    ch =  chr(key)
+                    if len(app_front.content):
+                        app_front.content[-1] += ch
+                    else:
+                        app_front.content = [ch]
+                elif (key not in allowed_keys) and key < 256:
+                    ch =  '[' + str(key) + ']'
+                    if len(app_front.content):
+                        app_front.content[-1] += ch
+                    else:
+                        app_front.content = [ch]
+                else:
+                    continue
+                app_front.update()
+                # app_front.stdscr.refresh()
+                
+                if not key in [curses.KEY_UP, curses.KEY_DOWN, curses.KEY_LEFT, curses.KEY_RIGHT]:   
+                    app_front.stdscr.move(
+                        TOP_PAD + max(len(app_front.content) - 1, 0),
+                        LFT_PAD + (len(app_front.content[-1]) if len(app_front.content) else 0) + 1
+                    )
+                else:
+                    y, x = app_front.stdscr.getyx()
+                    
+                    pass
+
+def s_button_click():
+    with open(filepath, 'w') as f:
+        for line in myApp.content:
+            f.write(line + '\n')
+    myApp.exit_log += filepath + ' saved'
+    # schedule a close
+    myApp.key_inputs.append(curses.KEY_CLOSE)
+    pass
+
+myApp = app(
+    'fvi [' + filepath + ']', 
+    appService, 
+    buttons=[('S', s_button_click)],
+    content=file_content
+)
+
+myApp.activate()
