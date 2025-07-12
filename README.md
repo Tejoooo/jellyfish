@@ -5,24 +5,8 @@ Simple python based text editor with no external modules dependencies.
 No install required, copy code and use.
 
 ```bash
-$ python fvi.py 
+$ python fvi.py test.py 
 ```
 
-```
--------------------------------------------------
-fvi text editor : untitled.txt
--------------------------------------------------
-hello!
-this is your text editing area.
+<img width="1116" height="548" alt="image" src="https://github.com/user-attachments/assets/8974e667-2e73-420e-a5e2-f357d48cb0e4" />
 
-Arrows keys to navigate,
-Ctrl+C to exit
-
-and then y to save!|
--------------------------------------------------
-Ln 6, Col 19
--------------------------------------------------
-Save file? (y/n): y
-untitled.txt saved
-
-```
