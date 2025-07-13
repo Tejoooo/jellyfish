@@ -1,4 +1,4 @@
-import sys 
+import sys
 def getArgs():
     arg_dict = {None:[]}
     switch = None 

@@ -1,8 +1,8 @@
-# f*ck vi
-Because I can build an entire text editor in lesser time than learning vi
-
+# jelly fish
 Simple python based text editor with no external modules dependencies.
-No install required, copy code and use.
+Saves all the commits (save points) so that you can always go back to.
+
+No install required, just download and use.
 
 ```bash
 $ python fvi.py test.py 
