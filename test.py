@@ -1,20 +1,7 @@
-import sys
-def getArgs():
-    arg_dict = {None:[]}
-    switch = None 
-    # scan args
-    for arg in sys.argv:
-        # you hit a switch
-        if arg[0] == '-':
-            switch = arg
-            if switch not in arg_dict:
-                arg_dict.update({switch: []})    
-            pass
-        # if you hit an argument
-        else:
-            arg_dict[switch].append(arg)
-    return arg_dict
+import argparse
 
-arg_dict = getArgs()
+parser = argparse.ArgumentParser(description='A text editor')
+parser.add_argument('file', help='filepath to edit.', default='untitled.txt', nargs='?')
+args = parser.parse_args()
 
-print(arg_dict)
+print(vars(args))

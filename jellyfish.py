@@ -1,93 +1,61 @@
 # from looks import app, TOP_PAD, LFT_PAD
 # import curses
-import sys 
-def getArgs():
-    arg_dict = {None:[]}
-    switch = None 
-    # scan args
-    for arg in sys.argv:
-        # you hit a switch
-        if arg[0] == '-':
-            switch = arg
-            if switch not in arg_dict:
-                arg_dict.update({switch: []})    
-            pass
-        # if you hit an argument
-        else:
-            arg_dict[switch].append(arg)
-    return arg_dict
 
-arg_dict = getArgs()
+import argparse
+parser = argparse.ArgumentParser(description='A text editor')
+parser.add_argument('file', help='filepath to edit.', default=None, nargs='?')
+arg_dict = vars(parser.parse_args())
 
-if arg_dict[None][1:]:
-    filepath = arg_dict[None][1]
-    with open(filepath, 'r') as f:
-        file_content = f.read().splitlines()
-else:
-    filepath = 'untitled.txt'
-    file_content = []
+import os
+filepath = arg_dict['file']
+if filepath:
+    if os.path.exists(filepath):
+        pass
 
-# index line offset bytes from file
-# so that you can read only parts of the file cached into memory
+line_hash_map   = {0:0}      # map line# -> byte postion
+session_changes = {}      # map line# -> edits
 
-with open(filepath, 'r') as f:
-    line_end_indices = [idx for idx, c in enumerate(f.read()) if c=='\n']
+# note to myself
+# read line by line
+# if user wants to jump to a line, go the line by seeking the newline delims.
+    # you may use this to index the file for those ... lines
+# do not have to index all newlines -- thats just not optimized way
 
-def getLine(line_number):
-    with open(filepath, 'r') as f:
-        if line_number==0:
-            start_idx = 0
-        else:
-            start_idx = line_end_indices[line_number-1] + 1
-        end_idx = line_end_indices[line_number]
-        f.seek(start_idx)
-        line = f.read(end_idx - start_idx)
-    return '[' + str(line_number) + ']:\t' + line
+def cache_index(filepath:str, line_num:int):
+    # find the line less than but closest to line_num
+    # then start seeking from there
+    floor_line = max(line for line in line_hash_map if line < line_num)
+    floor_byte = line_hash_map[floor_line] # this is start of floor_line
+    lines_to_skip = line_num - floor_line
+    with open(filepath, 'rb') as f:
+        f.seek(floor_byte)
+        # now to skip n lines
+        for _ in range(lines_to_skip):
+            f.readline()
+        pos = f.tell()
+    line_hash_map.update({line_num: pos})
+
+def read_lines(filepath:str, start_line_num:int, rows:int):
+    if start_line_num not in line_hash_map:
+        cache_index(filepath, start_line_num)
+    
+    byte_offset = line_hash_map[start_line_num]
+    with open(filepath, 'rb') as f:
+        f.seek(byte_offset)
+        for i in range(rows):
+            print(f.readline())
+
 
 ############################################################################
 # TEST CODE - to be removed
-import sys
-import tty
-import termios
 
-def get_key():
-    fd = sys.stdin.fileno()
-    old_settings = termios.tcgetattr(fd)
+input_str = '0'
+while input_str:
     try:
-        tty.setraw(fd)
-        key = sys.stdin.read(1)
-        if key == '\x1b':
-            key += sys.stdin.read(2)
-    finally:
-        termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-    return key
-
-#       Up          Down        Right       Left
-dirs = ['\x1b[A',   '\x1b[B',   '\x1b[C',   '\x1b[D']
-############################################################################
-
-line_number = 0
-line = getLine(0)
-sys.stdout.write('\r' + line)
-clear_space = len(line)
-
-key_strokes = []
-
-while True:
-    key = get_key()
-    key_strokes.append(key)
-    if key == dirs[0]:
-        line_number = max(0, line_number-1)
-    if key == dirs[1]:
-        line_number = min(len(line_end_indices)-1, line_number+1)
-    if key == 'q':
-        print('')
+        input_str = input('>>> ')
+        input_idx = int(input_str)-1
+    except:
+        print(line_hash_map)
         break
+    read_lines(filepath, input_idx, 5)
     
-    line = getLine(line_number)
-    sys.stdout.write('\r' + clear_space*' ')
-    sys.stdout.write('\r' +line)
-    clear_space = len(line)
-
-print('\n')
-print(key_strokes)
