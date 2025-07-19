@@ -24,7 +24,7 @@ def print_log(log_str):
     global log
     log += '\n' + log_str
 
-def cache_index(filepath:str, line_num:int):
+def cache_index(filepath, line_num):
     # find the line less than but closest to line_num
     # then start seeking from there
     floor_line = max(line for line in line_hash_map if line < line_num)
@@ -38,7 +38,7 @@ def cache_index(filepath:str, line_num:int):
         pos = f.tell()
     line_hash_map.update({line_num: pos})
 
-def read_lines(filepath:str, start_line_num:int, rows:int):
+def read_lines(filepath, start_line_num, rows):
     lines = []
     if start_line_num not in line_hash_map:
         cache_index(filepath, start_line_num)
@@ -47,7 +47,7 @@ def read_lines(filepath:str, start_line_num:int, rows:int):
     with open(filepath, 'rb') as f:
         f.seek(byte_offset)
         for i in range(rows):
-            lines.append(f.readline().decode())
+            lines.append(f.readline().rstrip(b'\r\n'))
     return lines
 
 ############################################################################
@@ -66,6 +66,7 @@ def app_service(app_front):
                 cursor_row += 1
                 n_rows, _ = app_front.get_current_size()
                 app_front.content = read_lines(filepath, cursor_row, n_rows)
+                # print_log(''.join(app_front.content))
                 app_front.update()
             if key == curses.KEY_UP:
                 cursor_row = max(0, cursor_row-1)
@@ -76,9 +77,8 @@ def app_service(app_front):
 app_front = app(
     'text reader', 
     app_service, 
-    buttons=[]
+    buttons=[],
+    content = read_lines(filepath, 0, 100)
 )
 
 app_front.activate()
-
-print(log)

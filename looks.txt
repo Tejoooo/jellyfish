@@ -75,8 +75,8 @@ class app(object):
         N_ROWS = term_rows - TOP_PAD - BOT_PAD
 
         col_strt = 1 + LFT_PAD
-        col_stop = term_cols - RGT_PAD - 1
-        N = col_stop - col_strt # term_cols - RGT_PAD - LFT_PAD - 1
+        col_stop = term_cols - RGT_PAD
+        N = term_cols - LFT_PAD - RGT_PAD - 1
 
         # print first few lines 
         show_lines = self.content[self.view_row : N_ROWS+self.view_row]
@@ -99,7 +99,6 @@ class app(object):
         
         # upon load, write the first lines from top.
         # self.stdscr.redrawwin()
-        self.rectangle(1, 0, term_rows-2, term_cols-1)
 
     def scrolldown(self):
         term_rows, term_cols = self.stdscr.getmaxyx()
