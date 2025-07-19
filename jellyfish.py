@@ -1,6 +1,3 @@
-# from looks import app, TOP_PAD, LFT_PAD
-# import curses
-
 import argparse
 parser = argparse.ArgumentParser(description='A text editor')
 parser.add_argument('file', help='filepath to edit.', default=None, nargs='?')
@@ -21,6 +18,12 @@ session_changes = {}      # map line# -> edits
     # you may use this to index the file for those ... lines
 # do not have to index all newlines -- thats just not optimized way
 
+# debug tools
+log = ''
+def print_log(log_str):
+    global log
+    log += '\n' + log_str
+
 def cache_index(filepath:str, line_num:int):
     # find the line less than but closest to line_num
     # then start seeking from there
@@ -36,6 +39,7 @@ def cache_index(filepath:str, line_num:int):
     line_hash_map.update({line_num: pos})
 
 def read_lines(filepath:str, start_line_num:int, rows:int):
+    lines = []
     if start_line_num not in line_hash_map:
         cache_index(filepath, start_line_num)
     
@@ -43,19 +47,38 @@ def read_lines(filepath:str, start_line_num:int, rows:int):
     with open(filepath, 'rb') as f:
         f.seek(byte_offset)
         for i in range(rows):
-            print(f.readline())
-
+            lines.append(f.readline().decode())
+    return lines
 
 ############################################################################
-# TEST CODE - to be removed
+from looks import app, TOP_PAD, LFT_PAD
+import curses
 
-input_str = '0'
-while input_str:
-    try:
-        input_str = input('>>> ')
-        input_idx = int(input_str)-1
-    except:
-        print(line_hash_map)
-        break
-    read_lines(filepath, input_idx, 5)
-    
+def app_service(app_front):
+    # type: (app) -> None
+    cursor_row = 0
+    while True:
+        if app_front.key_inputs:
+            key = app_front.key_inputs.pop(0)
+            if key == curses.KEY_CLOSE:
+                break
+            if key == curses.KEY_DOWN:
+                cursor_row += 1
+                n_rows, _ = app_front.get_current_size()
+                app_front.content = read_lines(filepath, cursor_row, n_rows)
+                app_front.update()
+            if key == curses.KEY_UP:
+                cursor_row = max(0, cursor_row-1)
+                n_rows, _ = app_front.get_current_size()
+                app_front.content = read_lines(filepath, cursor_row, n_rows)
+                app_front.update()
+
+app_front = app(
+    'text reader', 
+    app_service, 
+    buttons=[]
+)
+
+app_front.activate()
+
+print(log)
