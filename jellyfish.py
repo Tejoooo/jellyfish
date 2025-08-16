@@ -8,6 +8,9 @@ filepath = arg_dict['file']
 if filepath:
     if os.path.exists(filepath):
         pass
+else:
+    parser.print_usage()
+    exit(0)
 
 line_hash_map   = {0:0}      # map line# -> byte postion
 session_changes = {}      # map line# -> edits
@@ -75,7 +78,7 @@ def app_service(app_front):
                 app_front.update()
 
 app_front = app(
-    'text reader', 
+    'jellyfish', 
     app_service, 
     buttons=[],
     content = read_lines(filepath, 0, 100)
