@@ -60,9 +60,6 @@ def line_editor(stdscr, filename):
         # Status bar
         status = f"Line {current_line_no+1}/{len(lines)} | Press y to Save | q to Quit"
         stdscr.addstr(height-1, 0, status[:width-1], curses.A_REVERSE)
-
-        # Move cursor (offset by len(prompt))
-        stdscr.move(height//2, len(prompt) + min(x, width - len(prompt) - 1))
         
         stdscr.move(height//2, len(prompt) + min(x, width - len(prompt) - 1))
         stdscr.refresh()

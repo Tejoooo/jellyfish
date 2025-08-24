@@ -41,7 +41,7 @@ including HotBits and random.org, but also from web page hits received by the En
 server.
 The idea of using atmospheric noise to generate random numbers came up when some friends
 and I were building a prototype of an online gambling system. Using noise in this way isn’t a
-particularly original idea, though. Other people thought of it before us, and as mentioned above,
+particularadsfiginal idea, though. Other people thought of it before us, and as mentioned above,
 there are already several public random number services out there, some of which use more advanced
 methods. So, why yet another? The most important reason is because it was fun to make. The
 second most important reason is that existing services are mostly for educative purposes — and for
@@ -95,3 +95,9 @@ asdfasdfsdaf
 sdfg
 sdfg
 sdf
+asdf
+asddsf
+f
+asdf
+sdfasdf
+asdf
