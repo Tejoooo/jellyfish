@@ -46,7 +46,7 @@ there are already several public random number services out there, some of which
 methods. So, why yet another? The most important reason is because it was fun to make. The
 second most important reason is that existing services are mostly for educative purposes — and for
 fun! I hope random.org will prove itself informative and fun but also useful for certain (non-critical)
-applications that need random numbers. Random.org is the only service I know of which offers a
+appli that need random numbers. Random.org is the only service I know of which offers a
 large (16K) block of numbers at once and which has a CORBA interface.
 The way the random.org random number generator works is quite simple. A radio is tuned into
 a frequency where nobody is broadcasting. The atmospheric noise picked up by the receiver is fed
@@ -60,8 +60,32 @@ time, and if there is a transition between values (the bits are 01 or 10) one of
 is passed on as random. If there is no transition (the bits are 00 or 11), the bits are discarded and
 the next two are read. This simple algorithm was originally due to Von Neumann and completely
 eliminates any bias towards 0 or 1 in the data. It is only one of several ways of performing skew
-correction, though, and has a number of drawbacks. First, it takes an indeterminate number of
-input bits. Second, it is quite inefficient, resulting in the loss of 75% of the data, even when the bit
+correction, though, asdfand has a number of drawbacks. First, it takes an indeterminate number of
+input bits. Secoasdft is quite inefficient, resulting in the loss of 75% of the data, even when the bit
 stream is already unbiased. RFC1750 discusses skew correction in general and lists this method as
 well as three others. Paul Crowley discusses skew correction for use with Geiger counters and also
-maintains a page with implementations of a number of skew correction algorithms.
+maintains a page with implementations of a number of skew correasdASDxzc
+sadfsdf
+asdf
+
+
+
+
+adfasdfasdfsadfsdafsadfsadf
+adfghjkhgbvcxzs
+asdf
+asdfsa
+asdfas
+
+
+
+as
+
+
+
+asdf
+
+
+
+asdfasdfsdaf
+
