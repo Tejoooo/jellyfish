@@ -63,8 +63,7 @@ def line_editor(stdscr, filename):
 
         # Move cursor (offset by len(prompt))
         stdscr.move(height//2, len(prompt) + min(x, width - len(prompt) - 1))
-
-        prompt = ">>> "
+        
         stdscr.move(height//2, len(prompt) + min(x, width - len(prompt) - 1))
         stdscr.refresh()
 
